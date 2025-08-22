@@ -37,7 +37,6 @@ class MarkerData {
   });
 
   final LatLng point;
-  // ignore: unreachable_from_main
   final String imageAsset;
   bool isImageVisible;
 }
@@ -55,15 +54,14 @@ class _MyHomePageState extends State<MyHomePage> {
   final MapController _mapController = MapController();
 
   // 現在のズームレベル（初期値は 13.0）
-  double currentZoom2 = 13.0;
+  double _currentZoom = 13.0;
 
   // 画像サイズの基準となるズームレベル
-  final double baseZoom2 = 13.0;
+  final double _baseZoom = 13.0;
 
   // 基本の画像サイズ（ピクセル）
-  final double timeContainerWidth = 50;
-
-//  final double _baseImageHeight = 50;
+  final double _baseImageWidth = 50;
+  final double _baseImageHeight = 50;
 
   // 5つのマーカーのデータ（位置と対応する画像アセットのパス）
   final List<MarkerData> _markersData = <MarkerData>[
@@ -115,7 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
       }
       _mapController.move(center, zoom);
       setState(() {
-        currentZoom2 = zoom;
+        _currentZoom = zoom;
       });
     });
   }
@@ -123,7 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
   ///
   @override
   Widget build(BuildContext context) {
-    final double scaleFactor = currentZoom2 / baseZoom2;
+    final double scaleFactor = _currentZoom / _baseZoom;
 
     return Scaffold(
       appBar: AppBar(
@@ -133,11 +131,11 @@ class _MyHomePageState extends State<MyHomePage> {
         mapController: _mapController,
         options: MapOptions(
           initialCenter: const LatLng(36.2048, 138.2529),
-          initialZoom: currentZoom2,
+          initialZoom: _currentZoom,
           onPositionChanged: (MapCamera position, bool isMoving) {
             if (isMoving) {
               setState(() {
-                currentZoom2 = position.zoom;
+                _currentZoom = position.zoom;
               });
             }
           },
@@ -153,8 +151,8 @@ class _MyHomePageState extends State<MyHomePage> {
             markers: _markersData.map((MarkerData markerData) {
               return Marker(
                 point: markerData.point,
-                width: (30 + 8 + timeContainerWidth) * scaleFactor,
-//                height: _baseImageHeight * scaleFactor,
+                width: (30 + 8 + _baseImageWidth) * scaleFactor,
+                height: _baseImageHeight * scaleFactor,
                 child: GestureDetector(
                   onTap: () {
                     setState(() {
@@ -168,23 +166,10 @@ class _MyHomePageState extends State<MyHomePage> {
                       Icon(Icons.location_on, size: 30 * scaleFactor, color: Colors.red),
                       if (markerData.isImageVisible) ...<Widget>[
                         Container(
-                          width: timeContainerWidth * scaleFactor,
-//                          height: _baseImageHeight * scaleFactor,
+                          width: _baseImageWidth * scaleFactor,
+                          height: _baseImageHeight * scaleFactor,
                           decoration: BoxDecoration(border: Border.all(color: Colors.black54), color: Colors.white),
-                          // child: Image.asset(markerData.imageAsset, fit: BoxFit.cover),
-                          //
-                          //
-
-                          child: DefaultTextStyle(
-                            style: const TextStyle(fontSize: 10, color: Colors.redAccent),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Text(markerData.point.latitude.toString()),
-                                Text(markerData.point.longitude.toString())
-                              ],
-                            ),
-                          ),
+                          child: Image.asset(markerData.imageAsset, fit: BoxFit.cover),
                         ),
                       ],
                     ],
